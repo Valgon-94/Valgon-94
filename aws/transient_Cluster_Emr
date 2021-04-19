@@ -1,0 +1,73 @@
+import json
+import boto3
+import datetime
+
+
+def lambda_handler():
+    print("Creating EMR")
+    script_path = "s3://8k-vigneshwar-de/etlPyspark.py"
+    connection = boto3.client('emr', region_name='us-east-1')
+    #print(event)
+    cluster_id = connection.run_job_flow(
+        Name='Emr_Spark_2',
+        LogUri='s3://8k-vigneshwar-de/server-feed/',
+        ReleaseLabel='emr-5.21.0',
+        Applications=[
+            {'Name': 'Hadoop'},
+            {'Name': 'Hive'},
+            {'Name': 'Spark'}
+        ],
+        Instances={
+            'InstanceGroups': [
+                {
+                    'Name': 'Master nodes',
+                    'Market': 'ON_DEMAND',
+                    'InstanceRole': 'MASTER',
+                    'InstanceType': 'm5.xlarge',
+                    'InstanceCount': 1
+                },
+                {
+                    'Name': 'Slave nodes',
+                    'Market': 'SPOT',
+                    'InstanceRole': 'CORE',
+                    'InstanceType': 'm5.xlarge',
+                    'InstanceCount': 1
+                }
+            ],
+
+            'KeepJobFlowAliveWhenNoSteps': False,
+            'TerminationProtected': False,
+            #'AutoTerminate': True,
+            #'Ec2KeyName': 'test'
+        },
+        Steps=[
+            {
+                'Name': 'spark-submit',
+                'ActionOnFailure': 'TERMINATE_CLUSTER',
+                'HadoopJarStep': {
+                    'Jar': 'command-runner.jar',
+                    'Args': [
+                        'spark-submit','--deploy-mode','cluster','s3://8k-vigneshwar-de/etlPyspark.py'
+                        ,'Weather_report_kaggle_2.csv','Weather_report_kaggle_op.parquet'
+
+                    ]
+                }
+            }
+        ],
+        #AutoScalingRole='EMR_AutoScaling_DefaultRole',
+        VisibleToAllUsers=True,
+        JobFlowRole='EMR_EC2_Default_Role',
+        ServiceRole='EMR_Default_Role',
+        #EbsRootVolumeSize=100,
+        Tags=[
+            {
+                'Key': 'vigneshwar',
+                'Value': 'BDAPractice',
+            },
+        ],
+    )
+    print(cluster_id['JobFlowId'])
+
+
+resp = lambda_handler()
+print(resp)
