@@ -1,0 +1,50 @@
+###############################Docker Basics##################################################
+
+
+1.To run a docker setting
+	docker-compose up
+
+2.kill a compose
+	docker-compose down --rmi all 	
+	
+3.Dockerfile:
+		FROM node:alpine
+		COPY . /app
+		WORKDIR /app
+		CMD node appjs
+		
+		
+4.build the docker file
+			docker build -t hello-docker .
+			
+5. list images
+		docker image ls
+		
+6.Running a container
+			docker run hello-docker
+			
+			
+7.Pull images from docker-hub to other env.
+		docker pull dokr-hub/hello-docker
+		
+8.search play with docker in google and sign in u can check you small images.
+
+9.check running process
+		1.docker ps      ---> only running process
+		2.docker ps -a   ---> all process
+		
+		
+10.Run  interactive commands in ubuntu
+		1.docker run -it ubuntu 
+		
+		
+11.Package Manager
+		1.APT - Advanced Packaging Tool
+		2.apt install nano
+		3.apt list
+		4.apt update  (to update apt database)
+		5.apt remove nano
+		
+		
+		
+		
