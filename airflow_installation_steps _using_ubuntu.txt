@@ -1,0 +1,50 @@
+sudo apt update && sudo apt upgrade
+
+sudo nano /etc/wsl.conf
+
+Update the below content in above file (to mount linux )
+
+[automount]
+root = /
+options = "metadata"
+
+
+
+------------------------------------------------
+
+sudo apt update
+
+sudo apt install python3-pip
+
+
+pip3 install apache-airflow[gcp,aws,statsd,sentry]==1.10.10
+pip3 install cryptography==2.9.2
+pip3 install pyspark==2.4.5
+
+
+config setup
+
+export AIRFLOW_HOME=/c/Users/vigneshwar.t/airflow_home/
+
+Add this setting permanently as environ variable as below
+
+nano ~/.bashrc   (add the above command inthe file)
+
+echo $AIRFLOW_HOME   (to check wether correctly given)
+
+
+Initialise airflow metadata database
+
+airflow --version
+airflow initdb
+airflow webserver
+
+
+once completed in chrome
+localhost:8080
+
+now open a new tab of ubuntu cmd prmpt and
+
+airflow scheduler (may get permission denied exception)
+to overcome this error open airflow.cfg in dag directory and change below condition
+load_examples = False
