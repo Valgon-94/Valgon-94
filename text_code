@@ -1,0 +1,109 @@
+%python
+import os
+from pathlib import Path
+import pandas as pd
+
+def decouplefile(root, file):
+    filename = os.path.join(root, file)
+    #print(filename)
+    row = 1
+    l = 0
+    with open(filename) as source:
+        lines = source.readlines()
+        datalistNew = []
+        df = pd.DataFrame(
+        columns=[
+            "date",
+            "SHIFT_NHMBER",
+            "Patientnum_COHNTS",
+            "TREATS_TYPESD",
+            "DISESES",
+            "ROOMNHMB",
+            "RATIO",
+            "MEDIC",
+            "METRI",
+            "SYRI",
+            "TYPESS",
+            "IST_Time",
+            "COH",
+            "MAL_FEM",
+            "DOCTORSS",
+            "PATIEN_NO",
+            "CC",
+            "BRAN"
+        ]
+    )
+
+        for i in range(l, len(lines)):
+            checkflag = 1
+            if "CC" in lines[i] and "BRAN" in lines[i]:
+                CCsplit = lines[i].split("CC:")
+                BRAN1split=CCsplit[1].split("BRAN:")
+                CC=BRAN1split[0]
+                BRAN=BRAN1split[1]
+                j=i+1
+                date1=lines[j]
+                date2=date1.split()
+                date = date2[0]
+                k=j+2
+                SHIFT_NHMBER1=lines[k].split("SHIFT NHMBER:")
+                SHIFT_NHMBER=SHIFT_NHMBER1[1]
+            if '----' in lines[i]:
+                        m=i+1
+                        for n in  range(m,len(lines)):
+                            split_string=lines[n]
+                            Patientnum_COHNTS=split_string[0:10]
+                            TREATS_TYPESD=split_string[11:19]
+                            DISESES=split_string[19:25]
+                            ROOMNHMB=split_string[25:32]
+                            RATIO=split_string[32:41]
+                            MEDIC=split_string[41:47]
+                            METRI=split_string[47:54]
+                            SYRI=split_string[54:61]
+                            TYPESS=split_string[61:69]
+                            IST_Time=split_string[69:80]
+                            COH=split_string[80:88]
+                            MAL_FEM=split_string[88:97]
+                            DOCTORSS=split_string[97:107]
+                            PATIEN_NO=split_string[107:125]
+                            if len(Patientnum_COHNTS.strip()) ==0 and len(DISESES.strip()) ==0:
+                              n=n+1
+                              continue
+                            if '*' in lines[n]:
+                              continue
+                            datadict={'date':date,'SHIFT_NHMBER':SHIFT_NHMBER,'Patientnum_COHNTS':Patientnum_COHNTS,'TREATS_TYPESD':TREATS_TYPESD,'DISESES':DISESES,'ROOMNHMB':ROOMNHMB,'RATIO':RATIO,'MEDIC':MEDIC,'METRI':METRI,'SYRI':SYRI,'TYPESS':TYPESS,'IST_Time':IST_Time,'COH':COH,'MAL_FEM':MAL_FEM,'DOCTORSS':DOCTORSS,'PATIEN_NO':PATIEN_NO,'CC':CC,'BRAN':BRAN}
+                            row=row+1
+                            df=df.append(datadict,ignore_index=True)
+                            df = df.replace(r'\n','', regex=True)
+                            #display(df)
+                            index=df.index
+                            if "PAGE:" in lines[n]:
+                                df=df.drop([index[-1]])
+                                checkflag=0
+                                n=n+1
+                                l=n
+                                break
+                            if "END OF REPORT" in lines[n]:
+                                df=df.drop([index[-1],index[-2],index[-3],index[-4],index[-5],index[-6],index[-7],index[-8],index[-9],index[-10],
+                                           index[-11],index[-12],index[-13],index[-14],index[-15],index[-16]])
+                                
+                        if checkflag:
+                            continue
+                            #print("value is correct")
+                            inserTable(df,file)
+def inserTable(df,file):
+    outfolder='OUTPUTPATH'
+    df.to_csv (outfolder+file.strip(".txt") + ".csv",index = False,header=False)
+                            
+def main():
+    inputFolder = 'INPUTPATH'
+    mainPath = Path(inputFolder)
+    for root, dirs, files in os.walk(mainPath):
+        for file in files:
+            if file.endswith(".txt"):
+                decouplefile(root, file)
+            else:
+                print("files are not present in Input folder")
+
+if __name__ == "__main__":
+    main()
